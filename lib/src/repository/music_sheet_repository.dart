@@ -20,8 +20,6 @@ class MusicSheetRepository extends RepositoryBase {
       });
     }
 
-    await closeDB();
-
     return musicSheetId;
   }
 
@@ -53,8 +51,6 @@ class MusicSheetRepository extends RepositoryBase {
       musicSheets.add(MusicSheet.fromMap(map));
     }
 
-    await closeDB();
-
     return musicSheets;
   }
 
@@ -77,7 +73,6 @@ class MusicSheetRepository extends RepositoryBase {
         'tagId': tag.id,
       });
     }
-    await closeDB();
   }
 
   Future deleteMusicSheet(int id) async {
@@ -88,7 +83,5 @@ class MusicSheetRepository extends RepositoryBase {
       where: 'id = ?',
       whereArgs: [id],
     );
-
-    await closeDB();
   }
 }

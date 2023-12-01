@@ -9,7 +9,6 @@ class MusicSheetTagRepository extends RepositoryBase {
     int tagId = await db.insert('tags', newTag.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
 
-    await closeDB();
     return tagId;
   }
 
@@ -23,7 +22,6 @@ class MusicSheetTagRepository extends RepositoryBase {
     for (var tag in maps) {
       tags.add(MusicSheetTag.fromMap(tag));
     }
-    await closeDB();
     return tags;
   }
 
@@ -35,7 +33,6 @@ class MusicSheetTagRepository extends RepositoryBase {
       where: 'id = ?',
       whereArgs: [tag.id],
     );
-    await closeDB();
   }
 
   Future deleteTag(int id) async {
@@ -45,6 +42,5 @@ class MusicSheetTagRepository extends RepositoryBase {
       where: 'id = ?',
       whereArgs: [id],
     );
-    await closeDB();
   }
 }

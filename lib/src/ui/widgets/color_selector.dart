@@ -19,7 +19,12 @@ class _ColorSelectorState extends State<ColorSelector> {
       height: 44,
       onSelectFocus: false,
       onSelect: () async {
-        await openColorPickerDialog();
+        final Color colorBeforeDialog = widget.selectedColor;
+        if (!(await openColorPickerDialog())) {
+          setState(() {
+            widget.onColorChanged(colorBeforeDialog);
+          });
+        }
       },
       borderRadius: 22,
       color: widget.selectedColor,

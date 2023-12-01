@@ -1,19 +1,20 @@
 import 'package:allegro_pdf/src/models/music_sheet_tag.dart';
+import 'package:allegro_pdf/src/providers/music_sheet_tag_provider.dart';
 import 'package:allegro_pdf/src/repository/music_sheet_tag_repository.dart';
 import 'package:allegro_pdf/src/ui/widgets/color_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MusicSheetTagDialog extends StatefulWidget {
+class MusicSheetTagDialog extends ConsumerStatefulWidget {
   final MusicSheetTag? tagToEdit;
-  final Function callback;
-  const MusicSheetTagDialog({Key? key, this.tagToEdit, required this.callback})
-      : super(key: key);
+  const MusicSheetTagDialog({Key? key, this.tagToEdit}) : super(key: key);
 
   @override
-  State<MusicSheetTagDialog> createState() => _MusicSheetTagDialogState();
+  ConsumerState<MusicSheetTagDialog> createState() =>
+      _MusicSheetTagDialogState();
 }
 
-class _MusicSheetTagDialogState extends State<MusicSheetTagDialog> {
+class _MusicSheetTagDialogState extends ConsumerState<MusicSheetTagDialog> {
   late TextEditingController _titleController;
   late Color _selectedColor;
   bool get isEditing => widget.tagToEdit != null;
@@ -36,18 +37,17 @@ class _MusicSheetTagDialogState extends State<MusicSheetTagDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(isEditing ? 'Edit Tag' : 'Add Tag'),
-      content: SizedBox(
-        width: MediaQuery.of(context).size.width / 3,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
-              ),
-            ),
-            ColorSelector(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _titleController,
+            decoration: const InputDecoration(labelText: 'Title'),
+          ),
+          SizedBox(height: MediaQuery.of(context).size.height / 50),
+          InputDecorator(
+            decoration: const InputDecoration(labelText: 'Color'),
+            child: ColorSelector(
               selectedColor: _selectedColor,
               onColorChanged: (color) {
                 setState(() {
@@ -55,8 +55,8 @@ class _MusicSheetTagDialogState extends State<MusicSheetTagDialog> {
                 });
               },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       actions: <Widget>[
         TextButton(
@@ -64,7 +64,7 @@ class _MusicSheetTagDialogState extends State<MusicSheetTagDialog> {
           child: const Text('Cancel'),
         ),
         TextButton(
-          onPressed: () {
+          onPressed: () async {
             final newTag = MusicSheetTag(
               id: isEditing ? widget.tagToEdit!.id : null,
               title: _titleController.text,
@@ -74,14 +74,16 @@ class _MusicSheetTagDialogState extends State<MusicSheetTagDialog> {
             final repository = MusicSheetTagRepository();
 
             if (isEditing) {
-              repository.updateTag(newTag);
+              await repository.updateTag(newTag);
             } else {
-              repository.insertTag(newTag);
+              await repository.insertTag(newTag);
             }
 
-            widget.callback();
+            ref.invalidate(musicSheetTagProvider);
 
-            Navigator.of(context).pop(newTag);
+            if (context.mounted) {
+              Navigator.of(context).pop(newTag);
+            }
           },
           child: Text(isEditing ? 'Update' : 'Add'),
         ),

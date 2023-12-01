@@ -58,11 +58,7 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
                 builderDelegate: PagedChildBuilderDelegate<MusicSheet>(
                     itemBuilder: (context, musicSheet, index) {
                   return ListTile(
-                    title: Row(
-                      children: [
-                        Text(musicSheet.title),
-                      ],
-                    ),
+                    title: Text(musicSheet.title),
                     leading: const Icon(Icons.music_note_rounded),
                     subtitle: Container(
                       margin: const EdgeInsets.only(top: 4.0),
@@ -75,13 +71,59 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
                         }).toList(),
                       ),
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () async {
-                        await showMusicSheetDialog(context,
-                            musicSheet: musicSheet,
-                            availableTags: availableTags);
-                      },
+                    trailing: SizedBox(
+                      width: MediaQuery.of(context).size.width / 8,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () async {
+                              await showMusicSheetDialog(context,
+                                  musicSheet: musicSheet,
+                                  availableTags: availableTags);
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () async {
+                              bool confirmDelete = await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text("Confirm Deletion"),
+                                    content: const Text(
+                                        "Are you sure you want to delete this music sheet?"),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: const Text("Cancel"),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(false);
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: const Text("Delete"),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(true);
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+
+                              if (confirmDelete) {
+                                final repository = MusicSheetRepository();
+                                await repository
+                                    .deleteMusicSheet(musicSheet.id!);
+                                if (context.mounted) {
+                                  _pagingController.refresh();
+                                }
+                              }
+                            },
+                          )
+                        ],
+                      ),
                     ),
                     onTap: () {
                       context.go('/pdf', extra: musicSheet);

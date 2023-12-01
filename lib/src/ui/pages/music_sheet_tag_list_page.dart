@@ -78,7 +78,7 @@ class MusicSheetTagListPage extends ConsumerWidget {
                                   },
                                 );
 
-                                if (confirmDelete == true) {
+                                if (confirmDelete) {
                                   final repository = MusicSheetTagRepository();
                                   await repository.deleteTag(tag.id!);
                                   if (context.mounted) {

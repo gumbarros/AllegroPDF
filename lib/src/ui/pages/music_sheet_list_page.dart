@@ -2,6 +2,7 @@ import 'package:allegro_pdf/src/models/music_sheet.dart';
 import 'package:allegro_pdf/src/models/music_sheet_tag.dart';
 import 'package:allegro_pdf/src/providers/music_sheet_tag_provider.dart';
 import 'package:allegro_pdf/src/repository/music_sheet_repository.dart';
+import 'package:allegro_pdf/src/ui/dialogs/music_sheet_delete_dialog.dart';
 import 'package:allegro_pdf/src/ui/dialogs/music_sheet_dialog.dart';
 import 'package:allegro_pdf/src/ui/widgets/music_sheet_add_fab.dart';
 import 'package:allegro_pdf/src/ui/widgets/music_sheet_tag_chip.dart';
@@ -23,6 +24,12 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
   final PagingController<int, MusicSheet> _pagingController =
       PagingController(firstPageKey: 0);
 
+  String? titleFilter;
+  List<MusicSheetTag> tagsFilter = [];
+
+  bool get isFilterApplied =>
+      (titleFilter != null && titleFilter!.isNotEmpty) || tagsFilter.isNotEmpty;
+
   @override
   Widget build(BuildContext context) {
     final tagsState = ref.watch(musicSheetTagProvider);
@@ -37,6 +44,16 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
           ),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           actions: [
+            Visibility(
+              visible: tagsState.hasValue,
+              child: IconButton(
+                icon: const Icon(Icons.filter_list),
+                tooltip: "Filter",
+                onPressed: () {
+                  _showFilterDialog(context, availableTags: tagsState.value!);
+                },
+              ),
+            ),
             IconButton(
                 icon: const Icon(Icons.label),
                 tooltip: "Tags",
@@ -79,7 +96,7 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
                           IconButton(
                             icon: const Icon(Icons.edit),
                             onPressed: () async {
-                              await showMusicSheetDialog(context,
+                              await _showMusicSheetDialog(context,
                                   musicSheet: musicSheet,
                                   availableTags: availableTags);
                             },
@@ -90,25 +107,7 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
                               bool confirmDelete = await showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text("Confirm Deletion"),
-                                    content: const Text(
-                                        "Are you sure you want to delete this music sheet?"),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        child: const Text("Cancel"),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: const Text("Delete"),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(true);
-                                        },
-                                      ),
-                                    ],
-                                  );
+                                  return const MusicSheetDeleteDialog();
                                 },
                               );
 
@@ -136,34 +135,15 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
             loading: () => const Center(child: CircularProgressIndicator())));
   }
 
-  Future<void> showMusicSheetDialog(BuildContext context,
-      {required MusicSheet musicSheet,
-      required List<MusicSheetTag> availableTags}) async {
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return MusicSheetDialog(
-          musicSheet: musicSheet,
-          availableTags: availableTags,
-          pagingController: _pagingController,
-        );
-      },
-    );
-  }
-
-  @override
-  void initState() {
-    _pagingController.addPageRequestListener((pageKey) {
-      _fetchPage(pageKey);
-    });
-    super.initState();
-  }
-
   Future<void> _fetchPage(int pageKey) async {
     try {
       final repository = MusicSheetRepository();
 
-      final newItems = await repository.getAllMusicSheets(pageKey, _pageSize);
+      final newItems = await repository.getAllMusicSheets(
+          pageKey: pageKey,
+          pageSize: _pageSize,
+          titleFilter: titleFilter,
+          tagsFilter: tagsFilter.map((t) => t.title).toList());
 
       final isLastPage = newItems.length < _pageSize;
       if (isLastPage) {
@@ -175,6 +155,64 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
     } catch (error) {
       _pagingController.error = error;
     }
+  }
+
+  Future<void> _showFilterDialog(BuildContext context,
+      {required List<MusicSheetTag> availableTags}) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return MusicSheetDialog(
+            dialogTitle: "Filter",
+            onSaveCallback: (title, tags) async {
+              titleFilter = title;
+              tagsFilter = tags;
+
+              _pagingController.refresh();
+              context.pop();
+            },
+            availableTags: availableTags,
+            pagingController: _pagingController);
+      },
+    );
+  }
+
+  Future<void> _showMusicSheetDialog(BuildContext context,
+      {required MusicSheet musicSheet,
+      required List<MusicSheetTag> availableTags}) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return MusicSheetDialog(
+            dialogTitle: "Edit Music Sheet",
+            onSaveCallback: (title, tags) async {
+              final newMusicSheet = MusicSheet(
+                id: musicSheet.id,
+                title: title,
+                filePath: musicSheet.filePath,
+                tags: tags,
+              );
+
+              final repository = MusicSheetRepository();
+              await repository.updateMusicSheet(newMusicSheet);
+              _pagingController.refresh();
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
+            },
+            musicSheet: musicSheet,
+            availableTags: availableTags,
+            pagingController: _pagingController);
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetchPage(pageKey);
+    });
+    super.initState();
   }
 
   @override

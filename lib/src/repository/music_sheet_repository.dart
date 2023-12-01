@@ -23,16 +23,37 @@ class MusicSheetRepository extends RepositoryBase {
     return musicSheetId;
   }
 
-  Future<List<MusicSheet>> getAllMusicSheets(int pageKey, int pageSize) async {
+  Future<List<MusicSheet>> getAllMusicSheets(
+      {required int pageKey,
+      required int pageSize,
+      String? titleFilter,
+      List<String>? tagsFilter}) async {
     await openDB();
 
     final int offset = (pageKey - 1) * pageSize;
 
-    final List<Map<String, dynamic>> musicSheetsMaps = await db.query(
-      'music_sheets',
-      limit: pageSize,
-      offset: offset,
-    );
+    String query = 'SELECT * FROM music_sheets';
+
+    List<dynamic> queryArgs = [];
+
+    if (titleFilter != null || (tagsFilter != null && tagsFilter.isNotEmpty)) {
+      query += ' WHERE 1=1';
+      if (titleFilter != null && titleFilter.isNotEmpty) {
+        query += ' AND title LIKE ?';
+        queryArgs.add('%$titleFilter%');
+      }
+      if (tagsFilter != null && tagsFilter.isNotEmpty) {
+        query +=
+            ' AND id IN (SELECT musicSheetId FROM music_tags WHERE tagId IN (SELECT id FROM tags WHERE title IN (${List.filled(tagsFilter.length, '?').join(', ')})))';
+        queryArgs.addAll(tagsFilter);
+      }
+    }
+
+    query += ' LIMIT ? OFFSET ?';
+    queryArgs.addAll([pageSize, offset]);
+
+    final List<Map<String, dynamic>> musicSheetsMaps =
+        await db.rawQuery(query, queryArgs);
 
     List<MusicSheet> musicSheets = [];
 
@@ -40,11 +61,11 @@ class MusicSheetRepository extends RepositoryBase {
       final map = Map<String, dynamic>.from(result);
 
       final tagsMaps = await db.rawQuery('''
-        SELECT tags.id, tags.title, tags.color
-        FROM tags
-        INNER JOIN music_tags ON music_tags.tagId = tags.id
-        WHERE music_tags.musicSheetId = ${map['id']}
-      ''');
+      SELECT tags.id, tags.title, tags.color
+      FROM tags
+      INNER JOIN music_tags ON music_tags.tagId = tags.id
+      WHERE music_tags.musicSheetId = ?
+    ''', [map['id']]);
 
       map['tags'] = tagsMaps;
 

@@ -1,22 +1,27 @@
 import 'package:allegro_pdf/src/models/music_sheet.dart';
 import 'package:allegro_pdf/src/models/music_sheet_tag.dart';
-import 'package:allegro_pdf/src/repository/music_sheet_repository.dart';
 import 'package:allegro_pdf/src/ui/widgets/music_sheet_tag_choice_chips.dart';
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
+typedef OnSaveCallback = Future Function(
+    String title, List<MusicSheetTag> tags);
+
 class MusicSheetDialog extends StatefulWidget {
-  final MusicSheet musicSheet;
+  final MusicSheet? musicSheet;
   final PagingController pagingController;
-
   final List<MusicSheetTag> availableTags;
+  final String dialogTitle;
 
-  const MusicSheetDialog({
-    super.key,
-    required this.musicSheet,
-    required this.pagingController,
-    required this.availableTags,
-  });
+  final OnSaveCallback onSaveCallback;
+
+  const MusicSheetDialog(
+      {super.key,
+      required this.dialogTitle,
+      this.musicSheet,
+      required this.pagingController,
+      required this.availableTags,
+      required this.onSaveCallback});
 
   @override
   State<MusicSheetDialog> createState() => _MusicSheetDialogState();
@@ -27,7 +32,8 @@ class _MusicSheetDialogState extends State<MusicSheetDialog> {
 
   @override
   void initState() {
-    titleController.text = widget.musicSheet.title;
+    titleController.text = widget.musicSheet?.title ?? '';
+
     super.initState();
   }
 
@@ -41,7 +47,7 @@ class _MusicSheetDialogState extends State<MusicSheetDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Edit Music Sheet'),
+      title: Text(widget.dialogTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -52,11 +58,11 @@ class _MusicSheetDialogState extends State<MusicSheetDialog> {
           SizedBox(height: MediaQuery.of(context).size.height / 50),
           MusicSheetTagChoiceChips(
             availableTags: widget.availableTags,
-            selectedTags: widget.musicSheet.tags,
+            selectedTags: widget.musicSheet?.tags ?? [],
           )
         ],
       ),
-      actions: <Widget>[
+      actions: [
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
@@ -64,19 +70,9 @@ class _MusicSheetDialogState extends State<MusicSheetDialog> {
           child: const Text('Cancel'),
         ),
         TextButton(
-          onPressed: () async {
-            final updatedMusicSheet = MusicSheet(
-              id: widget.musicSheet.id,
-              title: titleController.text,
-              filePath: widget.musicSheet.filePath,
-              tags: widget.musicSheet.tags,
-            );
-            final repository = MusicSheetRepository();
-            await repository.updateMusicSheet(updatedMusicSheet);
-            if (context.mounted) {
-              widget.pagingController.refresh();
-              Navigator.of(context).pop();
-            }
+          onPressed: () {
+            widget.onSaveCallback(
+                titleController.text, widget.musicSheet?.tags ?? []);
           },
           child: const Text('Save'),
         ),

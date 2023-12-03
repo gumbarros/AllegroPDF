@@ -40,7 +40,7 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
         ),
         appBar: AppBar(
           title: const Text(
-            "AllegroPdf",
+            "AllegroPDF",
           ),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           actions: [

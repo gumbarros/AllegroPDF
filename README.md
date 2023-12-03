@@ -15,5 +15,5 @@ I didn't fancy the available free solutions and was't inclined to pay for them. 
 Through this process, I aimed to craft an application that not only fulfilled my requirements but also served as a platform for learning features of the new Flutter version.
 
 ## License
-Allegro Pdf is licensed under the [MIT License](LICENSE).
+AllegroPDF is licensed under the [MIT License](LICENSE).
 ---

@@ -1,16 +1,16 @@
-# allegro_pdf
+# AllegroPdf
 
-Pdf reader optimized for music sheets
+AllegroPdf is a specialized PDF reader designed specifically for music sheets.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- **Import Music Sheets From Anywhere:** Import from anywhere, it can be your file system or Google Drive.
+- **Tag-Based Organization:** Effortlessly organize your music sheets by tagging documents for easy categorization and quick access.
+- **Customization:** Change the theme of the app or the swipe direction of your documents
+- 
 
-A few resources to get you started if this is your first Flutter project:
+## License
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Allegro Pdf is licensed under the [MIT License](LICENSE.MD).
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---

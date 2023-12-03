@@ -63,7 +63,9 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
             IconButton(
               icon: const Icon(Icons.settings),
               tooltip: "Settings",
-              onPressed: () async {},
+              onPressed: () async {
+                context.go('/settings');
+              },
             )
           ],
         ),
@@ -163,7 +165,7 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
       context: context,
       builder: (BuildContext context) {
         return MusicSheetDialog(
-            dialogTitle: "Filter",
+            dialogTitle: "Filters",
             onSaveCallback: (title, tags) async {
               titleFilter = title;
               tagsFilter = tags;
@@ -171,6 +173,8 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
               _pagingController.refresh();
               context.pop();
             },
+            musicSheetTags: tagsFilter,
+            musicSheetTitle: titleFilter,
             availableTags: availableTags,
             pagingController: _pagingController);
       },
@@ -200,7 +204,8 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
                 Navigator.of(context).pop();
               }
             },
-            musicSheet: musicSheet,
+            musicSheetTitle: musicSheet.title,
+            musicSheetTags: musicSheet.tags,
             availableTags: availableTags,
             pagingController: _pagingController);
       },

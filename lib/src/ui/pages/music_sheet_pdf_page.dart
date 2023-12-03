@@ -1,10 +1,13 @@
 import 'package:allegro_pdf/src/models/music_sheet.dart';
+import 'package:allegro_pdf/src/models/settings.dart';
+import 'package:allegro_pdf/src/providers/settings_provider.dart';
 import 'package:allegro_pdf/src/ui/dialogs/jump_to_page_dialog.dart';
 import 'package:allegro_pdf/src/ui/widgets/sliding_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MusicSheetPdfPage extends StatefulWidget {
   final MusicSheet musicSheet;
@@ -60,30 +63,36 @@ class _MusicSheetPdfPageState extends State<MusicSheetPdfPage>
       ),
       body: GestureDetector(
         onTapDown: (_) {},
-        child: PDFView(
-          filePath: widget.musicSheet.filePath,
-          swipeHorizontal: true,
-          gestureRecognizers: {}
-            ..add(Factory<TapGestureRecognizer>(() => TapGestureRecognizer()
-              ..onTapDown = (details) async {
-                final RenderBox box = context.findRenderObject() as RenderBox;
-                final tapPosition = box.globalToLocal(details.globalPosition);
+        child: Consumer(
+          builder: (context, ref, _) {
+            return PDFView(
+              filePath: widget.musicSheet.filePath,
+              swipeHorizontal: ref.watch(settingsProvider).swipeDirection ==
+                  PdfSwipeDirection.horizontal,
+              gestureRecognizers: {}
+                ..add(Factory<TapGestureRecognizer>(() => TapGestureRecognizer()
+                  ..onTapDown = (details) async {
+                    final RenderBox box =
+                        context.findRenderObject() as RenderBox;
+                    final tapPosition =
+                        box.globalToLocal(details.globalPosition);
 
-                final screenWidth = MediaQuery.of(context).size.width;
-                final currentPage = await controller.getCurrentPage() ?? 1;
+                    final screenWidth = MediaQuery.of(context).size.width;
+                    final currentPage = await controller.getCurrentPage() ?? 1;
 
-                final exclusionThreshold = screenWidth / 4;
+                    final exclusionThreshold = screenWidth / 4;
 
-                if (tapPosition.dx < screenWidth / 2 - exclusionThreshold) {
-                  await controller.setPage(currentPage - 1);
-                } else if (tapPosition.dx >
-                    screenWidth / 2 + exclusionThreshold) {
-                  await controller.setPage(currentPage + 1);
-                }
-              }
-             )),
-          onViewCreated: (pdfController) {
-            controller = pdfController;
+                    if (tapPosition.dx < screenWidth / 2 - exclusionThreshold) {
+                      await controller.setPage(currentPage - 1);
+                    } else if (tapPosition.dx >
+                        screenWidth / 2 + exclusionThreshold) {
+                      await controller.setPage(currentPage + 1);
+                    }
+                  })),
+              onViewCreated: (pdfController) {
+                controller = pdfController;
+              },
+            );
           },
         ),
       ),

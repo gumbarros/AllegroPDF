@@ -1,4 +1,3 @@
-import 'package:allegro_pdf/src/models/music_sheet.dart';
 import 'package:allegro_pdf/src/models/music_sheet_tag.dart';
 import 'package:allegro_pdf/src/ui/widgets/music_sheet_tag_choice_chips.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +7,8 @@ typedef OnSaveCallback = Future Function(
     String title, List<MusicSheetTag> tags);
 
 class MusicSheetDialog extends StatefulWidget {
-  final MusicSheet? musicSheet;
+  final String? musicSheetTitle;
+  final List<MusicSheetTag>? musicSheetTags;
   final PagingController pagingController;
   final List<MusicSheetTag> availableTags;
   final String dialogTitle;
@@ -17,8 +17,9 @@ class MusicSheetDialog extends StatefulWidget {
 
   const MusicSheetDialog(
       {super.key,
+      this.musicSheetTitle,
+      this.musicSheetTags,
       required this.dialogTitle,
-      this.musicSheet,
       required this.pagingController,
       required this.availableTags,
       required this.onSaveCallback});
@@ -30,10 +31,12 @@ class MusicSheetDialog extends StatefulWidget {
 class _MusicSheetDialogState extends State<MusicSheetDialog> {
   final titleController = TextEditingController();
 
+  late List<MusicSheetTag> selectedTags;
+
   @override
   void initState() {
-    titleController.text = widget.musicSheet?.title ?? '';
-
+    titleController.text = widget.musicSheetTitle ?? '';
+    selectedTags = widget.musicSheetTags ?? [];
     super.initState();
   }
 
@@ -58,7 +61,7 @@ class _MusicSheetDialogState extends State<MusicSheetDialog> {
           SizedBox(height: MediaQuery.of(context).size.height / 50),
           MusicSheetTagChoiceChips(
             availableTags: widget.availableTags,
-            selectedTags: widget.musicSheet?.tags ?? [],
+            selectedTags: selectedTags,
           )
         ],
       ),
@@ -71,8 +74,7 @@ class _MusicSheetDialogState extends State<MusicSheetDialog> {
         ),
         TextButton(
           onPressed: () {
-            widget.onSaveCallback(
-                titleController.text, widget.musicSheet?.tags ?? []);
+            widget.onSaveCallback(titleController.text, selectedTags);
           },
           child: const Text('Save'),
         ),

@@ -90,41 +90,38 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
                         }).toList(),
                       ),
                     ),
-                    trailing: SizedBox(
-                      width: MediaQuery.of(context).size.width / 8,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () async {
-                              await _showMusicSheetDialog(context,
-                                  musicSheet: musicSheet,
-                                  availableTags: availableTags);
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () async {
-                              bool confirmDelete = await showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return const MusicSheetDeleteDialog();
-                                },
-                              );
+                    trailing: Wrap(
+                      alignment: WrapAlignment.end,
+                      crossAxisAlignment: WrapCrossAlignment.end,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () async {
+                            await _showMusicSheetDialog(context,
+                                musicSheet: musicSheet,
+                                availableTags: availableTags);
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () async {
+                            bool confirmDelete = await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return const MusicSheetDeleteDialog();
+                              },
+                            );
 
-                              if (confirmDelete) {
-                                final repository = MusicSheetRepository();
-                                await repository
-                                    .deleteMusicSheet(musicSheet.id!);
-                                if (context.mounted) {
-                                  _pagingController.refresh();
-                                }
+                            if (confirmDelete) {
+                              final repository = MusicSheetRepository();
+                              await repository.deleteMusicSheet(musicSheet.id!);
+                              if (context.mounted) {
+                                _pagingController.refresh();
                               }
-                            },
-                          )
-                        ],
-                      ),
+                            }
+                          },
+                        )
+                      ],
                     ),
                     onTap: () {
                       context.go('/pdf', extra: musicSheet);

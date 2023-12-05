@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:allegro_pdf/src/models/music_sheet.dart';
 import 'package:allegro_pdf/src/repository/music_sheet_repository.dart';
+import 'package:allegro_pdf/src/ui/dialogs/loading_dialog.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -21,12 +23,18 @@ class MusicSheetAddFab extends StatelessWidget {
         icon: const Icon(Icons.add),
         label: const Text("Add"),
         onPressed: () async {
+          await showLoadingDialog(context, message: "Adding sheet musics...");
+
           FilePickerResult? result = await FilePicker.platform.pickFiles(
             type: FileType.custom,
+            allowMultiple: true,
             allowedExtensions: ['pdf'],
           );
 
           if (result == null) {
+            if (context.mounted) {
+              context.pop();
+            }
             return;
           }
 
@@ -44,6 +52,10 @@ class MusicSheetAddFab extends StatelessWidget {
                 title: r.name.replaceAll('.pdf', ''),
                 filePath: filePath,
                 tags: []));
+          }
+
+          if (context.mounted) {
+            context.pop();
           }
 
           _pagingController.refresh();

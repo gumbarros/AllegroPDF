@@ -8,7 +8,7 @@ class MusicSheetRepository extends RepositoryBase {
   Future<int> insertMusicSheet(MusicSheet musicSheet) async {
     await openDB();
     int musicSheetId = await db.insert('music_sheets', musicSheet.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+        conflictAlgorithm: ConflictAlgorithm.ignore);
 
     for (var tag in musicSheet.tags) {
       int tagId = await db.insert('tags', tag.toMap(),

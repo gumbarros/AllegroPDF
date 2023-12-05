@@ -27,6 +27,7 @@ class AllegroPdfApp extends ConsumerWidget {
       title: 'AllegroPDF',
       themeMode: ref.watch(settingsProvider).themeMode,
       theme: FlexThemeData.light(scheme: colorTheme),
+      debugShowCheckedModeBanner: false,
       darkTheme: FlexThemeData.dark(scheme: colorTheme),
       routerConfig: router,
     );

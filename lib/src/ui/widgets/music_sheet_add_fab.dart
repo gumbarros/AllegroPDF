@@ -50,6 +50,7 @@ class MusicSheetAddFab extends StatelessWidget {
             await file.copy(filePath);
             await repository.insertMusicSheet(MusicSheet(
                 title: r.name.replaceAll('.pdf', ''),
+                lastOpenedDate: null,
                 filePath: filePath,
                 tags: []));
           }

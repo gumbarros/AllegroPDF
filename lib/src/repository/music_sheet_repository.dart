@@ -23,11 +23,14 @@ class MusicSheetRepository extends RepositoryBase {
     return musicSheetId;
   }
 
-  Future<List<MusicSheet>> getAllMusicSheets(
-      {required int pageKey,
-      required int pageSize,
-      String? titleFilter,
-      List<String>? tagsFilter}) async {
+  Future<List<MusicSheet>> getAllMusicSheets({
+    required int pageKey,
+    required int pageSize,
+    String? titleFilter,
+    List<String>? tagsFilter,
+    String orderByColumn = "lastOpenedDate",
+    String orderByDirection = "ASC",
+  }) async {
     await openDB();
 
     final int offset = (pageKey - 1) * pageSize;
@@ -49,11 +52,16 @@ class MusicSheetRepository extends RepositoryBase {
       }
     }
 
+    query += ' ORDER BY $orderByColumn $orderByDirection';
+
     query += ' LIMIT ? OFFSET ?';
+
     queryArgs.addAll([pageSize, offset]);
 
-    final List<Map<String, dynamic>> musicSheetsMaps =
-        await db.rawQuery(query, queryArgs);
+    final List<Map<String, dynamic>> musicSheetsMaps = await db.rawQuery(
+      query,
+      queryArgs,
+    );
 
     List<MusicSheet> musicSheets = [];
 

@@ -4,6 +4,7 @@ import 'package:allegro_pdf/src/providers/music_sheet_tag_provider.dart';
 import 'package:allegro_pdf/src/repository/music_sheet_repository.dart';
 import 'package:allegro_pdf/src/ui/dialogs/music_sheet_delete_dialog.dart';
 import 'package:allegro_pdf/src/ui/dialogs/music_sheet_dialog.dart';
+import 'package:allegro_pdf/src/ui/dialogs/order_by_dialog.dart';
 import 'package:allegro_pdf/src/ui/widgets/music_sheet_add_fab.dart';
 import 'package:allegro_pdf/src/ui/widgets/music_sheet_tag_chip.dart';
 import 'package:flutter/material.dart';
@@ -47,10 +48,20 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
             Visibility(
               visible: tagsState.hasValue,
               child: IconButton(
-                icon: const Icon(Icons.filter_list),
+                icon: const Icon(Icons.filter_alt),
                 tooltip: "Filter",
                 onPressed: () {
                   _showFilterDialog(context, availableTags: tagsState.value!);
+                },
+              ),
+            ),
+            Visibility(
+              visible: tagsState.hasValue,
+              child: IconButton(
+                icon: const Icon(Icons.sort),
+                tooltip: "Sort",
+                onPressed: () {
+                  _showOrderByDialog(context);
                 },
               ),
             ),
@@ -75,7 +86,16 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
                 pagingController: _pagingController,
                 separatorBuilder: (_, __) => const Divider(),
                 builderDelegate: PagedChildBuilderDelegate<MusicSheet>(
-                    itemBuilder: (context, musicSheet, index) {
+                    noItemsFoundIndicatorBuilder: (context) {
+                  final message = isFilterApplied
+                      ? "No sheet music found.\nTry changing your filters."
+                      : "Welcome to AllegroPDF!\nAdd your sheet music to get started!";
+                  return Center(
+                      child: Text(
+                    message,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ));
+                }, itemBuilder: (context, musicSheet, index) {
                   return ListTile(
                     title: Text(musicSheet.title),
                     leading: const Icon(Icons.music_note_rounded),
@@ -97,7 +117,7 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
                         IconButton(
                           icon: const Icon(Icons.edit),
                           onPressed: () async {
-                            await _showMusicSheetDialog(context,
+                            await _showEditDialog(context,
                                 musicSheet: musicSheet,
                                 availableTags: availableTags);
                           },
@@ -123,8 +143,18 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
                         )
                       ],
                     ),
-                    onTap: () {
-                      context.go('/pdf', extra: musicSheet);
+                    onTap: () async {
+                      musicSheet.lastOpenedDate = DateTime.now();
+
+                      final repository = MusicSheetRepository();
+
+                      await repository.updateMusicSheet(musicSheet);
+
+                      _pagingController.refresh();
+
+                      if (context.mounted) {
+                        context.go('/pdf', extra: musicSheet);
+                      }
                     },
                   );
                 }),
@@ -139,9 +169,11 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
       final repository = MusicSheetRepository();
 
       final newItems = await repository.getAllMusicSheets(
-          pageKey: pageKey,
+          pageKey: (pageKey / 20).truncate(),
           pageSize: _pageSize,
           titleFilter: titleFilter,
+          orderByColumn: ref.read(orderByColumnProvider),
+          orderByDirection: ref.read(orderByDirectionProvider),
           tagsFilter: tagsFilter.map((t) => t.title).toList());
 
       final isLastPage = newItems.length < _pageSize;
@@ -154,6 +186,16 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
     } catch (error) {
       _pagingController.error = error;
     }
+  }
+
+  Future _showOrderByDialog(BuildContext context) async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const OrderByDialog();
+        });
+
+    _pagingController.refresh();
   }
 
   Future<void> _showFilterDialog(BuildContext context,
@@ -178,7 +220,7 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
     );
   }
 
-  Future<void> _showMusicSheetDialog(BuildContext context,
+  Future<void> _showEditDialog(BuildContext context,
       {required MusicSheet musicSheet,
       required List<MusicSheetTag> availableTags}) async {
     await showDialog(
@@ -192,6 +234,7 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
                 title: title,
                 filePath: musicSheet.filePath,
                 tags: tags,
+                lastOpenedDate: musicSheet.lastOpenedDate,
               );
 
               final repository = MusicSheetRepository();

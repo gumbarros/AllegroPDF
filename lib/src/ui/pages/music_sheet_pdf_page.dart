@@ -9,17 +9,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MusicSheetPdfPage extends StatefulWidget {
+class MusicSheetPdfPage extends ConsumerStatefulWidget {
   final MusicSheet musicSheet;
 
-  const MusicSheetPdfPage({Key? key, required this.musicSheet})
-      : super(key: key);
+  const MusicSheetPdfPage({super.key, required this.musicSheet});
 
   @override
-  State<MusicSheetPdfPage> createState() => _MusicSheetPdfPageState();
+  ConsumerState<MusicSheetPdfPage> createState() => _MusicSheetPdfPageState();
 }
 
-class _MusicSheetPdfPageState extends State<MusicSheetPdfPage>
+class _MusicSheetPdfPageState extends ConsumerState<MusicSheetPdfPage>
     with SingleTickerProviderStateMixin {
   late final PDFViewController controller;
   late final AnimationController animationController;
@@ -67,6 +66,7 @@ class _MusicSheetPdfPageState extends State<MusicSheetPdfPage>
           builder: (context, ref, _) {
             return PDFView(
               filePath: widget.musicSheet.filePath,
+              nightMode: isNightMode(context),
               swipeHorizontal: ref.watch(settingsProvider).swipeDirection ==
                   PdfSwipeDirection.horizontal,
               gestureRecognizers: {}
@@ -110,5 +110,17 @@ class _MusicSheetPdfPageState extends State<MusicSheetPdfPage>
         return JumpToPageDialog(pdfControler: controller);
       },
     );
+  }
+
+  isNightMode(BuildContext context) {
+    final pdfThemeMode = ref.watch(settingsProvider).pdfThemeMode;
+
+    if (pdfThemeMode == ThemeMode.system) {
+      final platformBrightness = MediaQuery.of(context).platformBrightness;
+
+      return platformBrightness == Brightness.dark;
+    }
+
+    return pdfThemeMode == ThemeMode.dark;
   }
 }

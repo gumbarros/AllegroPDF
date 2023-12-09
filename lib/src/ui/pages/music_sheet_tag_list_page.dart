@@ -1,3 +1,4 @@
+import 'package:allegro_pdf/l10n/localization_extension.dart';
 import 'package:allegro_pdf/src/models/music_sheet_tag.dart';
 import 'package:allegro_pdf/src/providers/music_sheet_tag_provider.dart';
 import 'package:allegro_pdf/src/repository/music_sheet_tag_repository.dart';
@@ -20,7 +21,7 @@ class MusicSheetTagListPage extends ConsumerWidget {
         floatingActionButton: Visibility(
           child: FloatingActionButton.extended(
               icon: const Icon(Icons.add),
-              label: const Text("Add"),
+              label: Text(context.localization.add),
               onPressed: () async {
                 await showMusicSheetTagDialog(context);
               }),
@@ -57,18 +58,21 @@ class MusicSheetTagListPage extends ConsumerWidget {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: const Text("Confirm Deletion"),
-                                      content: const Text(
-                                          "Are you sure you want to delete this tag?"),
+                                      title: Text(
+                                          context.localization.confirmDeletion),
+                                      content: Text(context.localization
+                                          .tagDeletionConfirmation),
                                       actions: <Widget>[
                                         TextButton(
-                                          child: const Text("Cancel"),
+                                          child:
+                                              Text(context.localization.cancel),
                                           onPressed: () {
                                             Navigator.of(context).pop(false);
                                           },
                                         ),
                                         TextButton(
-                                          child: const Text("Delete"),
+                                          child:
+                                              Text(context.localization.delete),
                                           onPressed: () {
                                             Navigator.of(context).pop(true);
                                           },

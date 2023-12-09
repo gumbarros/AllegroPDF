@@ -1,3 +1,4 @@
+import 'package:allegro_pdf/l10n/localization_extension.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -42,15 +43,15 @@ class _ColorSelectorState extends State<ColorSelector> {
       runSpacing: 5,
       wheelDiameter: 155,
       heading: Text(
-        'Select color',
+        context.localization.selectColor,
         style: Theme.of(context).textTheme.titleSmall,
       ),
       subheading: Text(
-        'Select color shade',
+        context.localization.selectColorShade,
         style: Theme.of(context).textTheme.titleSmall,
       ),
       wheelSubheading: Text(
-        'Selected color and its shades',
+        context.localization.selectedColorAndItsShades,
         style: Theme.of(context).textTheme.titleSmall,
       ),
       showColorCode: true,

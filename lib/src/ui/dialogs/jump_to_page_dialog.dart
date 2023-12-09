@@ -1,3 +1,4 @@
+import 'package:allegro_pdf/l10n/localization_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
@@ -25,11 +26,11 @@ class _JumpToPageDialogState extends State<JumpToPageDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Jump to Page'),
+      title: Text(context.localization.jumpToPage),
       content: TextField(
         controller: pageController,
         keyboardType: TextInputType.number,
-        decoration: const InputDecoration(labelText: 'Enter page number'),
+        decoration: InputDecoration(labelText: context.localization.pageNumber),
       ),
       actions: [
         TextButton(
@@ -40,13 +41,13 @@ class _JumpToPageDialogState extends State<JumpToPageDialog> {
               Navigator.pop(context);
             }
           },
-          child: const Text('Go'),
+          child: Text(context.localization.go),
         ),
         TextButton(
           onPressed: () {
             Navigator.pop(context);
           },
-          child: const Text('Cancel'),
+          child: Text(context.localization.cancel),
         ),
       ],
     );

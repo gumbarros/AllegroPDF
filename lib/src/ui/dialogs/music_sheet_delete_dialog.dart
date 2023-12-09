@@ -1,3 +1,4 @@
+import 'package:allegro_pdf/l10n/localization_extension.dart';
 import 'package:flutter/material.dart';
 
 class MusicSheetDeleteDialog extends StatelessWidget {
@@ -8,17 +9,17 @@ class MusicSheetDeleteDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("Confirm Deletion"),
-      content: const Text("Are you sure you want to delete this music sheet?"),
+      title: Text(context.localization.confirmDeletion),
+      content: Text(context.localization.musicSheetDeletionConfirmation),
       actions: <Widget>[
         TextButton(
-          child: const Text("Cancel"),
+          child: Text(context.localization.cancel),
           onPressed: () {
             Navigator.of(context).pop(false);
           },
         ),
         TextButton(
-          child: const Text("Delete"),
+          child: Text(context.localization.delete),
           onPressed: () {
             Navigator.of(context).pop(true);
           },

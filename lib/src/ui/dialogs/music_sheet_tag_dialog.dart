@@ -1,3 +1,4 @@
+import 'package:allegro_pdf/l10n/localization_extension.dart';
 import 'package:allegro_pdf/src/models/music_sheet_tag.dart';
 import 'package:allegro_pdf/src/providers/music_sheet_tag_provider.dart';
 import 'package:allegro_pdf/src/repository/music_sheet_tag_repository.dart';
@@ -7,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MusicSheetTagDialog extends ConsumerStatefulWidget {
   final MusicSheetTag? tagToEdit;
-  const MusicSheetTagDialog({Key? key, this.tagToEdit}) : super(key: key);
+  const MusicSheetTagDialog({super.key, this.tagToEdit});
 
   @override
   ConsumerState<MusicSheetTagDialog> createState() =>
@@ -36,17 +37,19 @@ class _MusicSheetTagDialogState extends ConsumerState<MusicSheetTagDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(isEditing ? 'Edit Tag' : 'Add Tag'),
+      title: Text(isEditing
+          ? context.localization.editTag
+          : context.localization.addTag),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
             controller: _titleController,
-            decoration: const InputDecoration(labelText: 'Title'),
+            decoration: InputDecoration(labelText: context.localization.title),
           ),
           SizedBox(height: MediaQuery.of(context).size.height / 50),
           InputDecorator(
-            decoration: const InputDecoration(labelText: 'Color'),
+            decoration: InputDecoration(labelText: context.localization.color),
             child: ColorSelector(
               selectedColor: _selectedColor,
               onColorChanged: (color) {
@@ -61,7 +64,7 @@ class _MusicSheetTagDialogState extends ConsumerState<MusicSheetTagDialog> {
       actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(context.localization.cancel),
         ),
         TextButton(
           onPressed: () async {
@@ -85,7 +88,9 @@ class _MusicSheetTagDialogState extends ConsumerState<MusicSheetTagDialog> {
               Navigator.of(context).pop(newTag);
             }
           },
-          child: Text(isEditing ? 'Update' : 'Add'),
+          child: Text(isEditing
+              ? context.localization.update
+              : context.localization.add),
         ),
       ],
     );

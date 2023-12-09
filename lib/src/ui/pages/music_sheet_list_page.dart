@@ -1,3 +1,4 @@
+import 'package:allegro_pdf/l10n/localization_extension.dart';
 import 'package:allegro_pdf/src/models/music_sheet.dart';
 import 'package:allegro_pdf/src/models/music_sheet_tag.dart';
 import 'package:allegro_pdf/src/providers/music_sheet_tag_provider.dart';
@@ -8,6 +9,7 @@ import 'package:allegro_pdf/src/ui/dialogs/order_by_dialog.dart';
 import 'package:allegro_pdf/src/ui/widgets/music_sheet_add_fab.dart';
 import 'package:allegro_pdf/src/ui/widgets/music_sheet_tag_chip.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -49,7 +51,7 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
               visible: tagsState.hasValue,
               child: IconButton(
                 icon: const Icon(Icons.filter_alt),
-                tooltip: "Filter",
+                tooltip: AppLocalizations.of(context)!.filters,
                 onPressed: () {
                   _showFilterDialog(context, availableTags: tagsState.value!);
                 },
@@ -59,7 +61,7 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
               visible: tagsState.hasValue,
               child: IconButton(
                 icon: const Icon(Icons.sort),
-                tooltip: "Sort",
+                tooltip: AppLocalizations.of(context)!.sort,
                 onPressed: () {
                   _showOrderByDialog(context);
                 },
@@ -73,7 +75,7 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
                 }),
             IconButton(
               icon: const Icon(Icons.settings),
-              tooltip: "Settings",
+              tooltip: AppLocalizations.of(context)!.settings,
               onPressed: () async {
                 context.go('/settings');
               },
@@ -88,12 +90,13 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
                 builderDelegate: PagedChildBuilderDelegate<MusicSheet>(
                     noItemsFoundIndicatorBuilder: (context) {
                   final message = isFilterApplied
-                      ? "No sheet music found.\nTry changing your filters."
-                      : "Welcome to AllegroPDF!\nAdd your sheet music to get started!";
+                      ? AppLocalizations.of(context)!.filterMessage
+                      : AppLocalizations.of(context)!.welcome;
                   return Center(
                       child: Text(
                     message,
                     style: Theme.of(context).textTheme.bodyLarge,
+                    textAlign: TextAlign.center,
                   ));
                 }, itemBuilder: (context, musicSheet, index) {
                   return ListTile(
@@ -204,7 +207,7 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
       context: context,
       builder: (BuildContext context) {
         return MusicSheetDialog(
-            dialogTitle: "Filters",
+            dialogTitle: context.localization.filters,
             onSaveCallback: (title, tags) async {
               titleFilter = title;
               tagsFilter = tags;
@@ -227,7 +230,7 @@ class _MusicSheetListPageState extends ConsumerState<MusicSheetListPage> {
       context: context,
       builder: (BuildContext context) {
         return MusicSheetDialog(
-            dialogTitle: "Edit Music Sheet",
+            dialogTitle: context.localization.editMusicSheet,
             onSaveCallback: (title, tags) async {
               final newMusicSheet = MusicSheet(
                 id: musicSheet.id,

@@ -1,3 +1,4 @@
+import 'package:allegro_pdf/l10n/localization_extension.dart';
 import 'package:allegro_pdf/src/models/music_sheet_tag.dart';
 import 'package:allegro_pdf/src/ui/widgets/music_sheet_tag_choice_chips.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +57,7 @@ class _MusicSheetDialogState extends State<MusicSheetDialog> {
         children: <Widget>[
           TextFormField(
             controller: titleController,
-            decoration: const InputDecoration(labelText: 'Title'),
+            decoration: InputDecoration(labelText: context.localization.title),
           ),
           SizedBox(height: MediaQuery.of(context).size.height / 50),
           MusicSheetTagChoiceChips(
@@ -70,13 +71,13 @@ class _MusicSheetDialogState extends State<MusicSheetDialog> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Cancel'),
+          child: Text(context.localization.cancel),
         ),
         TextButton(
           onPressed: () {
             widget.onSaveCallback(titleController.text, selectedTags);
           },
-          child: const Text('Save'),
+          child: Text(context.localization.save),
         ),
       ],
     );

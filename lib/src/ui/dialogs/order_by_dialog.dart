@@ -1,3 +1,4 @@
+import 'package:allegro_pdf/l10n/localization_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,12 +15,12 @@ class OrderByDialog extends ConsumerWidget {
     final orderByDirection = ref.watch(orderByDirectionProvider);
 
     return AlertDialog(
-      title: const Text('Order By'),
+      title: Text(context.localization.sortBy),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           RadioListTile<String>(
-            title: const Text('Title'),
+            title: Text(context.localization.title),
             value: 'title',
             groupValue: orderByColumn,
             onChanged: (value) {
@@ -27,7 +28,7 @@ class OrderByDialog extends ConsumerWidget {
             },
           ),
           RadioListTile<String>(
-            title: const Text('Last Opened Date'),
+            title: Text(context.localization.lastOpenedDate),
             value: 'lastOpenedDate',
             groupValue: orderByColumn,
             onChanged: (value) {
@@ -36,7 +37,7 @@ class OrderByDialog extends ConsumerWidget {
           ),
           const Divider(),
           RadioListTile<String>(
-            title: const Text('Ascending'),
+            title: Text(context.localization.ascending),
             value: "ASC",
             groupValue: orderByDirection,
             onChanged: (value) {
@@ -44,7 +45,7 @@ class OrderByDialog extends ConsumerWidget {
             },
           ),
           RadioListTile<String>(
-            title: const Text('Descending'),
+            title: Text(context.localization.descending),
             value: "DESC",
             groupValue: orderByDirection,
             onChanged: (value) {
@@ -58,7 +59,7 @@ class OrderByDialog extends ConsumerWidget {
             onPressed: () {
               context.pop();
             },
-            child: const Text("Close"))
+            child: Text(context.localization.close))
       ],
     );
   }

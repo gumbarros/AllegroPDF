@@ -1,10 +1,8 @@
 import 'package:allegro_pdf/src/models/settings.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 final _settingsBox = Hive.box("settings");
 
@@ -12,6 +10,9 @@ Settings loadSettingsFromBox() {
   final settings = Settings(
       themeMode:
           ThemeMode.values[_settingsBox.get("themeMode", defaultValue: 0)],
+      pdfThemeMode:
+          ThemeMode.values[_settingsBox.get("pdfThemeMode", defaultValue: 1)],
+      locale: _settingsBox.get("locale", defaultValue: null),
       swipeDirection: PdfSwipeDirection
           .values[_settingsBox.get("pdfSwipeDirection", defaultValue: 0)],
       colorTheme: FlexScheme.values[_settingsBox.get("colorTheme",
@@ -26,6 +27,16 @@ class SettingsNotifer extends Notifier<Settings> {
   void setThemeMode(ThemeMode themeMode) async {
     _settingsBox.put("themeMode", themeMode.index);
     state = state.copyWith(themeMode: themeMode);
+  }
+
+  void setPdfThemeMode(ThemeMode themeMode) async {
+    _settingsBox.put("pdfThemeMode", themeMode.index);
+    state = state.copyWith(pdfThemeMode: themeMode);
+  }
+
+  void setLocale(Locale? locale) async {
+    _settingsBox.put("locale", locale);
+    state = state.copyWith(locale: locale, replaceLocale: true);
   }
 
   void setColorScheme(FlexScheme colorTheme) async {
@@ -46,10 +57,4 @@ class SettingsNotifer extends Notifier<Settings> {
 
 final settingsProvider = NotifierProvider<SettingsNotifer, Settings>(() {
   return SettingsNotifer();
-});
-
-final buildInfoProvider = FutureProvider<String>((ref) async {
-  final info = await PackageInfo.fromPlatform();
-
-  return "${info.appName} - ${info.version}+${info.buildNumber}-${kDebugMode ? "DEBUG" : "RELEASE"}";
 });

@@ -29,7 +29,7 @@ class MusicSheetRepository extends RepositoryBase {
     String? titleFilter,
     List<String>? tagsFilter,
     String orderByColumn = "lastOpenedDate",
-    String orderByDirection = "ASC",
+    String orderByDirection = "DESC",
   }) async {
     await openDB();
 

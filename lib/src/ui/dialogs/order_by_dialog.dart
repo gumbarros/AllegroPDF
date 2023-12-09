@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 final orderByColumnProvider = StateProvider<String>((ref) => 'lastOpenedDate');
-final orderByDirectionProvider = StateProvider<String>((ref) => "ASC");
+final orderByDirectionProvider = StateProvider<String>((ref) => "DESC");
 
 class OrderByDialog extends ConsumerWidget {
   const OrderByDialog({super.key});

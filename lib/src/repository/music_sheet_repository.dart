@@ -33,7 +33,7 @@ class MusicSheetRepository extends RepositoryBase {
   }) async {
     await openDB();
 
-    final int offset = (pageKey - 1) * pageSize;
+    final int offset = pageKey * pageSize;
 
     String query = 'SELECT * FROM music_sheets';
 
